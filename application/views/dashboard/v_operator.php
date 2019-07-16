@@ -1,0 +1,1 @@
+<div style="text-align: center;"><image src="_images/absence.png"/></div>
