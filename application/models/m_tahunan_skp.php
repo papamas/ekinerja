@@ -20,6 +20,7 @@ class M_tahunan_skp extends CI_Model {
         $this->db->from($this->table);
         if (!empty($status)) {
             $this->db->where('year(awal_periode_skp)', $status);
+			$this->db->order_by('awal_periode_skp','asc');
         }
         $i = 0;
 

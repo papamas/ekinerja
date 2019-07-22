@@ -11,6 +11,7 @@ if (isset($user)) {
     $atasan_langsung = $user['atasan_langsung'];
     $atasan_2 = $user['atasan_2'];
     $atasan_3 = $user['atasan_3'];
+	$lokasi = $user['lokasi'];
 } else {
     $id_dd_user = "";
     $nip = "";
@@ -22,6 +23,7 @@ if (isset($user)) {
     $atasan_langsung = "";
     $atasan_2 = "";
     $atasan_3 = "";
+	$lokasi = "";
 }
 ?>
 <style>
@@ -161,6 +163,14 @@ if (isset($user)) {
                 <input type="text" class="form-control" value="<?= $pangkat ?>" readonly> 
             </td>
         </tr>
+		 <tr>
+            <td>Lokasi Kerja</td>
+            <td> : </td> 
+            <td>
+                <input type="text" class="form-control" value="<?=$lokasi?>" id="lokasi"  > 
+				 <input type="hidden" name="lok_ker" id="lokasi_id" value="<?= $user['lok_ker'] ?>">
+            </td>
+        </tr>
         <tr>
             <td></td>
             <td> </td>
@@ -189,7 +199,7 @@ if (isset($user)) {
                 if (response.status === 1) {
                     alert(response.ket);
                     $('.close').click();
-                    refresh_user();
+                    //refresh_user();
                 } else {
                     alert(response.ket);
                 }
@@ -213,6 +223,35 @@ if (isset($user)) {
         select: function (event, ui) {
             var id = ($(this).attr('id'));
             $('#' + id + "_id").val(ui.item.id);
+//            $('#atasan2').val(ui.item.label);
+        }, open: function () {
+            var id = ($(this).attr('id'));
+            $('#' + id + "_id").val('');
+            $(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+        },
+        close: function () {
+            $(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+        }
+    });
+	
+	$("#lokasi").autocomplete({
+        source: function (request, response) {
+
+            $.ajax({
+                url: "<?= base_url('c_user/get_lokasi') ?>",
+                type: "POST",
+                data: {q: request.term},
+                dataType: 'json',
+                success: function (data) {
+                    response(data);
+                }
+            });
+        },
+        minLength: 0,
+        select: function (event, ui) {
+			
+            var id = ($(this).attr('id'));
+			 $('#' + id + "_id").val(ui.item.id);
 //            $('#atasan2').val(ui.item.label);
         }, open: function () {
             var id = ($(this).attr('id'));

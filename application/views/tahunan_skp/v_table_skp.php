@@ -68,7 +68,8 @@
                 "orderable": false, //set not orderable
             }, {
                 className: "dt-center",
-                "targets": [1]
+                "targets": [1],
+				
             }, {
                 "width": "10%", className: "dt-center", "orderable": false,
                 "targets": [2]

@@ -25,17 +25,33 @@
     <table class="table table-bordered" id="tbl_realisasi">
         <thead class="sorting_disabled ui-state-default">
             <tr style="text-align:center;">
-                <td rowspan="2" style="vertical-align:middle;">No</td>
-                <td rowspan="2" style="vertical-align:middle;">Kegiatan</td>
-                <td colspan="4">Target</td>
-                <td colspan="4">Realisasi</td>
-                <td colspan="2">Penilaian</td>
-                <td rowspan="2" style="vertical-align:middle;">Input Biaya & Waktu</td></tr>
-            <tr style="text-align:center;"><td>Kuantitas</td><td>Kualitas</td><td>Waktu</td><td>Biaya</td><td>Kuantitas</td><td>Kualitas</td><td>Waktu</td><td>Biaya</td><td>Perhitungan</td><td>Nilai</td></tr>
+                <td rowspan="2" style="vertical-align:middle;">NO</td>
+                <td rowspan="2" style="vertical-align:middle;">I. KEGIATAN TUGAS JABATAN</td>
+				<td rowspan="2">AK</td>
+                <td colspan="4">TARGET</td>
+				<td rowspan="2">AK</td>
+                <td colspan="4">REALISASI</td>
+                <td rowspan="2">PERHITUNGAN</td>
+				<td rowspan="2">NILAI CAPAIAN SKP</td>
+                <td rowspan="2" style="vertical-align:middle;">Input Biaya & Waktu</td>
+			</tr>
+            <tr style="text-align:center;">			  
+			   <td>Kuantitas</td>
+			   <td>Kualitas</td>
+			   <td>Waktu</td>
+			   <td>Biaya</td>			  
+			   <td>Kuantitas</td>
+			   <td>Kualitas</td>
+			   <td>Waktu</td>
+			   <td>Biaya</td>			   
+			</tr>
         </thead>
         <tbody>
             <?php
             $no = 1;
+			$total_ak_realisasi= 0;
+			$total_ak_target   = 0;
+			
             foreach ($real as $real_arr) {
                 $target_kuantitas = $real_arr['target_kuantitas'];
                 $real_kuantitas = $real_arr['realisasi_kuantitas'];
@@ -66,14 +82,29 @@
                 } else {
                     $nilai = $perhitungan / 3;
                 }
+				if(!IS_NULL($real_arr['angka_kredit'])) {
+					$ak  =  ' ('.$real_arr['angka_kredit'].'/'.$real_arr['satuan_kuantitas'].')';
+					$tak =  $real_arr['angka_kredit'] * $real_arr['target_kuantitas'];
+					$rak =  $real_arr['angka_kredit'] * $real_arr['realisasi_kuantitas'];
+					$total_ak_target = $total_ak_target + $tak;
+					$total_ak_realisasi = $total_ak_realisasi + $rak;
+				}else{
+					$ak  = "";
+					$tak = "-";
+					$rak = "-";					
+					
+				}
+				
                 ?>
                 <tr>
                     <td align="center"><?= $no ?></td>
-                    <td align="center"><?= $real_arr['kegiatan_tahunan'] ?></td>
+                    <td align="left"><?= $real_arr['kegiatan_tahunan'].$ak?></td>
+					<td align="center"><?= $tak ?></td>
                     <td align="center"><?= $real_arr['target_kuantitas'] . ' ' . $real_arr['satuan_kuantitas'] ?></td>
                     <td align="center">100</td>
                     <td align="center"><?= $real_arr['target_waktu'] . ' bulan' ?></td>
                     <td align="center"><?= number_format($real_arr['biaya']) ?></td>
+					<td align="center"><?= $tak ?></td>
                     <td align="center"><?= $real_arr['realisasi_kuantitas'] . ' ' . $real_arr['satuan_kuantitas'] ?></td>
                     <td align="center"><?=  number_format($real_arr['realisasi_kualitas'],2) ?></td>
                     <td align="center"><?= $real_arr['waktu_realisasi'] ?></td>
@@ -85,18 +116,39 @@
                 <?php
                 $no++;
             }
+			if($total_ak_target == 0){
+					$total_ak_target = "-";
+			} 
+			
+			if($total_ak_realisasi == 0){
+					$total_ak_realisasi = "-";
+			} 
             ?>
             <tr style="background:#dff0d8;font-weight:bold;">
-                <td colspan="11" align="center">Nilai SKP</td>
-                <td><?= !isset($ttl_nilai) ? $total_nilai = 0 : number_format($total_nilai = array_sum($ttl_nilai) / count($ttl_nilai), 2) ?></td>
+                <td colspan="2" align="center">Jumlah</td>
+				<td  align="center"><?php echo $total_ak_target?></td>
+				<td colspan="4" align="center"></td>
+				<td align="center"><?php echo $total_ak_realisasi?></td>
+				<td colspan="5" align="center"></td>
+                <td align="center"><?= !isset($ttl_nilai) ? $total_nilai = 0 : number_format($total_nilai = array_sum($ttl_nilai) / count($ttl_nilai), 2) ?></td>
+                <td></td>
+            </tr>
+			<tr>
+                <td colspan="13" align="left" style="font-weight: bold;">II. TUGAS TAMBAHAN DAN KREATIFITAS</td>
+                <td></td>
                 <td></td>
             </tr>
             <tr>
-                <td colspan="11" align="left" style="font-weight: bold;">Tugas Tambahan</td>
+                <td colspan="13" align="left" style="font-weight: bold;">a. Tugas Tambahan</td>
                 <td></td>
                 <td></td>
             </tr>
             <?php
+			$sql="SELECT * FROM opmt_tugas_tambahan WHERE DATE(tanggal)  BETWEEN DATE('{$real_arr['awal_periode_skp']}') AND DATE('{$real_arr['akhir_periode_skp']}') AND id_dd_user='{$real_arr['id_dd_user']}' ";
+			
+						
+			$tugas_tambahan = $this->db->query($sql)->result_array();
+			
             $ttl_tgs = count($tugas_tambahan);
             if ($ttl_tgs == 0) {
                 $nilai_tgs = 0;
@@ -107,10 +159,12 @@
             } else {
                 $nilai_tgs = 3;
             }$i = 0;
+			$no = 1;
             foreach ($tugas_tambahan as $arr2) {
                 ?>
                 <tr>
-                    <td colspan="11" align="left" ><?= $arr2['tugas_tambahan'] ?></td>
+				    <td><?php echo $no; ?>.</td>
+                    <td colspan="12" align="left" ><?= $arr2['tugas_tambahan'] ?></td>
                     <?php if ($i == 0) { ?>
                         <td rowspan="<?= $ttl_tgs ?>" style="vertical-align: middle;text-align: center;"><?= $nilai_tgs; ?></td>
                     <?php } ?>
@@ -118,35 +172,49 @@
                 </tr>
                 <?php
                 $i++;
+				$no ++;
             }
+			
             ?>
-            <tr>
-                <td colspan="11" align="left" style="font-weight: bold;">Kreatifitas</td>
-                <td></td>
-                <td></td>
-            </tr>
+            
             <?php
-            $ttl_kreatif = count($kreatifitas);
+            
+			$bulan  = date('n',strtotime($real_arr['akhir_periode_skp']));
+			$des ='<tr>              
+				<td colspan="13" align="left" style="font-weight: bold;">b. Kreatifitas</td>
+                <td></td>
+                <td></td>
+            </tr>';
+           
+			$ttl_kreatif = count($kreatifitas);
             $nilai_kreatif = 0;
-            $j = 0;
-            foreach ($kreatifitas as $arr3) {
-                ?>
-                <tr>
-                    <td colspan="11" align="left" ><?= $arr3['kreatifitas'] ?></td>
-                    <?php if ($j == 0) { ?>
-                        <td rowspan="<?= $ttl_kreatif ?>" style="text-align: center;vertical-align: middle;"><?= $nilai_kreatif = isset($nilai_kreatifitas2['nilai_kreatifitas']) ? $nilai_kreatifitas2['nilai_kreatifitas'] : 0 ?></td>
-                        <?php
-                        $j++;
-                    }
-                    ?>
-                    <td></td>
-                </tr>
-                <?php
-            }
+			
+			if($bulan === '12'){
+				
+				echo $des;			
+				$j = 0;
+				$no = 1;
+				foreach ($kreatifitas as $arr3) {
+					?>
+					<tr>
+						 <td><?php echo $no; ?>.</td>
+						<td colspan="12" align="left" ><?= $arr3['kreatifitas'] ?></td>
+						<?php if ($j == 0) { ?>
+							<td rowspan="<?= $ttl_kreatif ?>" style="text-align: center;vertical-align: middle;"><?= $nilai_kreatif = isset($nilai_kreatifitas2['nilai_kreatifitas']) ? $nilai_kreatifitas2['nilai_kreatifitas'] : 0 ?></td>
+							<?php
+							$j++;
+						}
+						?>
+						<td></td>
+					</tr>
+					<?php
+					$no ++;
+				}
+			}	
             ?>
             <tr style="background:#dff0d8;font-weight:bold;">
-                <td colspan="11" align="center">Total Nilai SKP</td>
-                <td><?= number_format($nilai_tgs + $nilai_kreatif + $total_nilai, 2) ?></td>
+                <td colspan="13" align="center">NILAI CAPAIAN SKP</td>
+                <td align="center" ><?= number_format($nilai_tgs + $nilai_kreatif + $total_nilai, 2) ?></td>
                 <td></td>
             </tr>
         </tbody>

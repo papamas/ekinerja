@@ -189,9 +189,7 @@ if ($rataSKP['rata'] >= 91) {
                 }
             }]
 
-    },
-// Add some life
-            );
+    });
 </script>
 <div style="height:200px;">
     <ol class="breadcrumb bc-2" style="margin-top:-30px;">

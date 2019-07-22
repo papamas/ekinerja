@@ -30,10 +30,19 @@ class C_user extends CI_Controller {
         $this->db->join('dd_user e', 'e.id_dd_user=a.atasan_langsung', 'LEFT');
         $this->db->join('dd_user f', 'f.id_dd_user=a.atasan_2', 'LEFT');
         $this->db->join('dd_user g', 'g.id_dd_user=a.atasan_3', 'LEFT');
-        $this->db->select('a.*,b.jabatan nama_jabatan,c.unitkerja nama_uker,d.*,e.nama nama_1,f.nama nama_2,g.nama nama_3');
+		 $this->db->join('dd_spesimen h', 'a.lok_ker=h.id_dd_spesimen', 'LEFT');
+        $this->db->select('a.*,b.jabatan nama_jabatan,c.unitkerja nama_uker,d.*,e.nama nama_1,f.nama nama_2,g.nama nama_3, h.lokasi_spesimen lokasi');
         $x['user'] = $this->db->where('a.id_dd_user', $id_user)->from('dd_user a')->get()->row_array();
         $x['list_user'] = $this->db->from('dd_user')->where('id_dd_user !=', $id_user)->get()->result_array();
         $this->load->view('user/v_profile', $x);
+    }
+	
+	public function get_lokasi() {
+        $nip = $this->session->userdata('nip');
+        $nama = $this->input->post('q');
+        $q = "SELECT id_dd_spesimen id, lokasi_spesimen label,lokasi_spesimen value  FROM dd_spesimen WHERE lokasi_spesimen LIKE '$nama%'";
+        $data = $this->db->query($q)->result();
+        echo json_encode($data);
     }
 
     public function get_user() {
@@ -331,21 +340,25 @@ ORDER BY a.id_opmt_target_bulanan_skp")->result_array();
     public function realisasi_tahunan_skp($id) {
         $x['id'] = $id;
         $id_user = $this->session->userdata('id_user');
-        $x['real'] = $this->db->query("SELECT a.*,b.satuan_kuantitas, 
-SUM(CASE WHEN d.proses=0 THEN d.kuantitas ELSE 0 END)realisasi_kuantitas,
-c.biaya biaya_realisasi,c.waktu waktu_realisasi,c.kualitas realisasi_kualitas
-FROM opmt_target_skp a
-LEFT JOIN opmt_target_bulanan_skp e on e.id_opmt_target_skp=a.id_opmt_target_skp AND e.id_dd_user={$id_user}
-LEFT JOIN opmt_bulanan_skp f on f.id_opmt_bulanan_skp=e.id_opmt_bulanan_skp AND f.id_dd_user={$id_user}
-LEFT JOIN dd_kuantitas b ON a.satuan_kuantitas=b.id_dd_kuantitas
-LEFT JOIN opmt_realisasi_skp c ON c.id_opmt_target_skp=a.id_opmt_target_skp
-LEFT JOIN opmt_realisasi_harian_skp d ON d.id_opmt_target_skp=a.id_opmt_target_skp AND d.proses='0' AND month(d.tanggal)=f.bulan AND e.id_dd_user={$id_user}
-WHERE a.id_opmt_tahunan_skp='{$id}'
-GROUP BY a.id_opmt_target_skp")->result_array();
+		
+		$sql	 = "SELECT a.*,g.angka_kredit,b.satuan_kuantitas,h.awal_periode_skp, h.akhir_periode_skp,SUM(CASE WHEN d.proses=0 THEN d.kuantitas ELSE 0 END)realisasi_kuantitas,c.biaya biaya_realisasi,c.waktu waktu_realisasi,c.kualitas realisasi_kualitas FROM opmt_target_skp a
+		LEFT JOIN opmt_target_bulanan_skp e on e.id_opmt_target_skp=a.id_opmt_target_skp AND e.id_dd_user={$id_user}
+		LEFT JOIN opmt_bulanan_skp f on f.id_opmt_bulanan_skp=e.id_opmt_bulanan_skp AND f.id_dd_user={$id_user}
+		LEFT JOIN dd_kuantitas b ON a.satuan_kuantitas=b.id_dd_kuantitas
+		LEFT JOIN opmt_realisasi_skp c ON c.id_opmt_target_skp=a.id_opmt_target_skp
+		LEFT JOIN opmt_realisasi_harian_skp d ON d.id_opmt_target_skp=a.id_opmt_target_skp AND 
+		d.proses='0' AND month(d.tanggal)=f.bulan AND e.id_dd_user={$id_user}
+		LEFT JOIN opmt_detail_kegiatan_jabatan g ON a.id_opmt_detail_kegiatan_jabatan = g.id_opmt_detail_kegiatan_jabatan
+		LEFT JOIN opmt_tahunan_skp h ON h.id_opmt_tahunan_skp = a.id_opmt_tahunan_skp
+		WHERE a.id_opmt_tahunan_skp='{$id}'
+		GROUP BY a.id_opmt_target_skp";
+
+        $x['real'] = $this->db->query($sql)->result_array();
         $periode = $this->db->query("SELECT * FROM opmt_tahunan_skp WHERE id_opmt_tahunan_skp='" . $id . "'")->row_array();
         $x['periode'] = $periode;
-        $x['tugas_tambahan'] = $this->db->query("SELECT * FROM opmt_tugas_tambahan WHERE year(tanggal)='" . date('Y', strtotime($periode['awal_periode_skp'])) . "' AND id_dd_user={$id_user}")->result_array();
+        
         $x['kreatifitas'] = $this->db->query("SELECT * FROM opmt_kreatifitas_skp WHERE year(tanggal)='" . date('Y', strtotime($periode['awal_periode_skp'])) . "' AND id_dd_user={$id_user}")->result_array();
+		
         $x['nilai_kreatifitas2'] = $this->db->query("SELECT * FROM opmt_kreatifitas_atasan WHERE tahun='" . date('Y', strtotime($periode['awal_periode_skp'])) . "' AND id_dd_user={$id_user}")->row_array();
         $this->load->view('user/v_realisasi_tahunan_skp', $x);
     }
