@@ -43,6 +43,8 @@
             $par = '';
             $par_id = '';
             $i = 0;$k=0;
+			$ttl_nilai = 0;
+			$total_nilai =0;
             foreach ($realisasi as $real_arr) {
                 if ($real_arr['id_dd_user_bawahan'] > 0 && $i > 0 && $real_arr['id_dd_user'] !== $this->session->userdata('id_user')) {
                     $no++;
@@ -124,7 +126,7 @@
                     <td class = "angka"><?= $real_arr['turunan'] == 1 ? "" : number_format($real_arr['realisasi_biaya'])
                         ?></td>
                     <td align="center"><?= $perhitungan == "" ? "" : number_format($perhitungan, 2) ?></td>
-                    <td align="center"><?= $nilai == "" ? "" : number_format($ttl_nilai[] = $nilai, 2) ?></td>
+                    <td align="center"><?= $nilai == "" ? "" : number_format($ttl_nilai = $ttl_nilai + $nilai, 2) ?></td>
                     <td align="center">
                         <?php if($real_arr['id_dd_user_bawahan']>0&&$real_arr['id_dd_user']!==$this->session->userdata('id_user')){echo '';}else{if ($real_arr['turunan'] == 0 && $real_arr['ket'] == 'utama') { ?>
                             <a href="javascript:void(0)" onclick="input_biaya_bulanan_skp('<?= $real_arr['id'] ?>', '<?= $real_arr['ket'] ?>', '<?= $real_arr['id_opmt_bulanan_skp'] ?>')"><i class="fa fa-pencil-square text-primary"></i></a>
@@ -144,11 +146,20 @@
                 $par = $real_arr['ket'];
                 $i++;
                 $par_id = $real_arr['id_opmt_target_bulanan_skp'];
-            }
+            }	
+			
             ?>
             <tr style="background-color:#dff0d8;text-align: center;font-weight: bold;">
                 <td colspan="11">Nilai SKP</td>
-                <td><?= $i == 0 ? $total_nilai = 0 : empty($ttl_nilai) ? $total_nilai = 0 : number_format($total_nilai = array_sum($ttl_nilai) / $k, 2) ?></td>
+			    <td>
+				<?php 
+				if(!empty($ttl_nilai)){
+					echo number_format($total_nilai = $ttl_nilai/ $k, 2);
+				}else{
+					echo "0.00";
+				}			
+				?>				
+				</td>				
                 <td></td>
             </tr>
             <tr>

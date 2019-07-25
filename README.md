@@ -9,4 +9,5 @@ kerja
 4. Fix Dashboard Grafik pada firefox 
 5. Penambahan lokasi kerja pada edit profile
 6. Perbaikan Realisasi Tahunan pada bagian tabel dan cetak pdf
+7. Fix Error pada Realisasi Bulanan if null
 
