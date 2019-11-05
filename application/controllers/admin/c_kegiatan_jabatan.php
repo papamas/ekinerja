@@ -60,8 +60,9 @@ class C_kegiatan_jabatan extends CI_Controller {
 
     public function ajax_list_detail() {
         $this->load->model('M_detail_kegiatan_jabatan', 'kegiatan_jabatan');
-        $id = $this->input->post('id');
-        $list = $this->kegiatan_jabatan->get_datatables($id);
+        $nama = $this->input->post('nama');
+		$id   = $this->input->post('id');
+        $list = $this->kegiatan_jabatan->get_datatables($nama,$id);
         $data = array();
         $no = $_POST['start'];
         foreach ($list as $dt) {
@@ -83,8 +84,8 @@ class C_kegiatan_jabatan extends CI_Controller {
 
         $output = array(
             "draw" => $_POST['draw'],
-            "recordsTotal" => $this->kegiatan_jabatan->count_all($id),
-            "recordsFiltered" => $this->kegiatan_jabatan->count_filtered($id),
+            "recordsTotal" => $this->kegiatan_jabatan->count_all($nama, $id),
+            "recordsFiltered" => $this->kegiatan_jabatan->count_filtered($nama, $id),
             "data" => $data,
         );
 //output to json format
@@ -128,6 +129,7 @@ class C_kegiatan_jabatan extends CI_Controller {
 
     public function tambah_detail($id) {
         $x['id'] = $id;
+		$x['satuan_hasil'] = $this->db->query("SELECT * FROM dd_kuantitas")->result_array();
         $this->load->view("kegiatan_jabatan/v_tambah_detail", $x);
     }
 
@@ -139,8 +141,11 @@ FROM opmt_kegiatan_jabatan a WHERE a.id_opmt_kegiatan_jabatan={$id}")->result_ar
     }
 
     public function ubah_detail($id) {
-        $x['dt_kegiatan_jabatan'] = $this->db->query("SELECT *     
-FROM opmt_detail_kegiatan_jabatan a LEFT JOIN dd_kuantitas b on b.id_dd_kuantitas=a.satuan_hasil WHERE a.id_opmt_detail_kegiatan_jabatan={$id}")->result_array();
+        $x['dt'] = $this->db->query("SELECT a.*     
+FROM opmt_detail_kegiatan_jabatan a 
+LEFT JOIN dd_kuantitas b on b.id_dd_kuantitas=a.satuan_hasil 
+WHERE a.id_opmt_detail_kegiatan_jabatan={$id}")->row_array();
+		$x['satuan_hasil'] = $this->db->query("SELECT * FROM dd_kuantitas")->result_array();
         $this->load->view("kegiatan_jabatan/v_ubah_detail", $x);
     }
 
@@ -169,13 +174,15 @@ FROM opmt_detail_kegiatan_jabatan a LEFT JOIN dd_kuantitas b on b.id_dd_kuantita
     public function aksi_tambah_detail() {
         $this->load->model("M_database");
         $p = json_decode(file_get_contents('php://input'));
+	/*
 	$cek=$this->db->where('satuan_kuantitas',$p->satuan_hasil)->from('dd_kuantitas')->get()->row();
 	if(count($cek)>0){
 		$p->satuan_hasil=$cek->id_dd_kuantitas;
 	}else{
         	$data = array('satuan_kuantitas' => $p->satuan_hasil);
         	$p->satuan_hasil = $this->M_database->tambah_data('dd_kuantitas', $data);
-	}
+	}*/
+	
         $cek = $this->M_database->tambah_data('opmt_detail_kegiatan_jabatan', $p);
         if ($cek) {
             $a['status'] = 1;
@@ -206,10 +213,10 @@ FROM opmt_detail_kegiatan_jabatan a LEFT JOIN dd_kuantitas b on b.id_dd_kuantita
     public function aksi_ubah_detail() {
         $this->load->model("M_database");
         $p = json_decode(file_get_contents('php://input'));
-        $x = array('satuan_kuantitas' => $p->satuan_hasil);
-        $ubah_status = $this->M_database->ubah_data('dd_kuantitas', 'id_dd_kuantitas', $p->id_satuan_hasil, $x);
-        unset($p->satuan_hasil);
-        unset($p->id_satuan_hasil);
+        //$x = array('satuan_kuantitas' => $p->satuan_hasil);
+        //$ubah_status = $this->M_database->ubah_data('dd_kuantitas', 'id_dd_kuantitas', $p->id_satuan_hasil, $x);
+        //unset($p->satuan_hasil);
+        //unset($p->id_satuan_hasil);
         $cek = $this->M_database->ubah_data('opmt_detail_kegiatan_jabatan', 'id_opmt_detail_kegiatan_jabatan', $p->id_opmt_detail_kegiatan_jabatan, $p);
         if ($cek) {
             $a['status'] = 1;

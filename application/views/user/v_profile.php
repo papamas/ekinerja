@@ -6,7 +6,7 @@ if (isset($user)) {
     $username = $user['username'];
 
     $jabatan_data = $user['nama_jabatan'];
-    $pangkat = $user['Pangkat'] . ' / ' . $user['Golongan'];
+    $pangkat = $user['pangkat'] . ' / ' . $user['golongan_ruang'];
     $uker_data = $user['nama_uker'];
     $atasan_langsung = $user['atasan_langsung'];
     $atasan_2 = $user['atasan_2'];
@@ -146,21 +146,25 @@ if (isset($user)) {
             <td>Unit Kerja</td>
             <td> : </td> 
             <td>
-                <input type="text" class="form-control" value="<?= $uker_data ?>" readonly>
+                <input type="text" class="form-control" value="<?= $uker_data ?>" id="uker" >
+				<input type="hidden" name="unit_kerja" id="uker_id" value="<?= $user['uker'] ?>">
+				
             </td>
         </tr>
         <tr>
             <td>Jabatan</td>
             <td> : </td> 
             <td>
-                <input type="text" class="form-control" value="<?= $jabatan_data ?>" readonly>
-            </td>
+                <input type="text" class="form-control" value="<?= $jabatan_data ?>" id="jabatan" >
+				<input type="hidden" name="jabatan" id="jabatan_id" value="<?= $user['jabatan'] ?>">
+			</td>
         </tr>
         <tr>
             <td>Pangkat/Gol. Ruang</td>
             <td> : </td> 
             <td>
-                <input type="text" class="form-control" value="<?= $pangkat ?>" readonly> 
+                <input type="text" class="form-control" value="<?= $pangkat ?>" id="pangkat" > 
+				<input type="hidden" name="gol_ruang" id="pangkat_id" value="<?= $user['gol_ruang'] ?>">
             </td>
         </tr>
 		 <tr>
@@ -168,7 +172,7 @@ if (isset($user)) {
             <td> : </td> 
             <td>
                 <input type="text" class="form-control" value="<?=$lokasi?>" id="lokasi"  > 
-				 <input type="hidden" name="lok_ker" id="lokasi_id" value="<?= $user['lok_ker'] ?>">
+				<input type="hidden" name="lok_ker" id="lokasi_id" value="<?= $user['lok_ker'] ?>">
             </td>
         </tr>
         <tr>
@@ -239,6 +243,93 @@ if (isset($user)) {
 
             $.ajax({
                 url: "<?= base_url('c_user/get_lokasi') ?>",
+                type: "POST",
+                data: {q: request.term},
+                dataType: 'json',
+                success: function (data) {
+                    response(data);
+                }
+            });
+        },
+        minLength: 0,
+        select: function (event, ui) {
+			
+            var id = ($(this).attr('id'));
+			 $('#' + id + "_id").val(ui.item.id);
+//            $('#atasan2').val(ui.item.label);
+        }, open: function () {
+            var id = ($(this).attr('id'));
+            $('#' + id + "_id").val('');
+            $(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+        },
+        close: function () {
+            $(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+        }
+    });
+	
+	$("#uker").autocomplete({
+        source: function (request, response) {
+
+            $.ajax({
+                url: "<?= base_url('c_user/get_uker') ?>",
+                type: "POST",
+                data: {q: request.term},
+                dataType: 'json',
+                success: function (data) {
+                    response(data);
+                }
+            });
+        },
+        minLength: 0,
+        select: function (event, ui) {
+			
+            var id = ($(this).attr('id'));
+			 $('#' + id + "_id").val(ui.item.id);
+//            $('#atasan2').val(ui.item.label);
+        }, open: function () {
+            var id = ($(this).attr('id'));
+            $('#' + id + "_id").val('');
+            $(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+        },
+        close: function () {
+            $(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+        }
+    });
+	
+	$("#jabatan").autocomplete({
+        source: function (request, response) {
+
+            $.ajax({
+                url: "<?= base_url('c_user/get_jabatan') ?>",
+                type: "POST",
+                data: {q: request.term},
+                dataType: 'json',
+                success: function (data) {
+                    response(data);
+                }
+            });
+        },
+        minLength: 5,
+        select: function (event, ui) {
+			
+            var id = ($(this).attr('id'));
+			 $('#' + id + "_id").val(ui.item.id);
+//            $('#atasan2').val(ui.item.label);
+        }, open: function () {
+            var id = ($(this).attr('id'));
+            $('#' + id + "_id").val('');
+            $(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+        },
+        close: function () {
+            $(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+        }
+    });
+	
+	$("#pangkat").autocomplete({
+        source: function (request, response) {
+
+            $.ajax({
+                url: "<?= base_url('c_user/get_pangkat') ?>",
                 type: "POST",
                 data: {q: request.term},
                 dataType: 'json',

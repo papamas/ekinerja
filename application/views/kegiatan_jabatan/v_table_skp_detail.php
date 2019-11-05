@@ -74,6 +74,7 @@
             "type": "POST",
             "data": function (d) {
                 d.id = $('#id').val();
+				d.nama=$('#nama').val();
               
             }
         }, "scrollX": true,
@@ -84,7 +85,7 @@
                 "targets": [0], //first column / numbering column
                 "orderable": false, //set not orderable
             }, {
-                className: "dt-center",
+                className: "dt-left",
                 "targets": [1]
             }, {
                 className: "dt-center ", "orderable": false, "width": "10%",

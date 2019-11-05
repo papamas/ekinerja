@@ -10,13 +10,13 @@
             <tr>
                 <td>Golongan</td>
                 <td>
-                    <input type="hidden" class="form-control " name="KodeGol" value="<?= $dt['KodeGol'] ?>">
-                    <input type="text" class="form-control " name="Golongan" value="<?= $dt['Golongan'] ?>">
+                    <input type="hidden" class="form-control " name="id_dd_ruang_pangkat" value="<?= $dt['id_dd_ruang_pangkat'] ?>">
+                    <input type="text" class="form-control " name="golongan_ruang" value="<?= $dt['golongan_ruang'] ?>">
                 </td>
             </tr>
             <tr>
                 <td>Pangkat</td>
-                <td><input type="text" class="form-control " name="Pangkat" value="<?= $dt['Pangkat'] ?>"></td>
+                <td><input type="text" class="form-control " name="pangkat" value="<?= $dt['pangkat'] ?>"></td>
             </tr>
 
             <tr>

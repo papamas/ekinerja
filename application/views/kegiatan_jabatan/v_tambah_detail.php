@@ -15,7 +15,14 @@
         <tr>
             <td>Satuan Hasil</td>
             <td>
+				<select class="form-control" name="satuan_hasil">
+				<?php foreach($satuan_hasil as $value):?>
+				<option value="<?=$value['id_dd_kuantitas']?>"><?=$value['satuan_kuantitas']?></option>
+				<?php endforeach;?>
+				</select>
+				<!--
                 <input type="text" class="form-control " name="satuan_hasil" >
+				!-->
             </td>
         </tr>
         <tr>

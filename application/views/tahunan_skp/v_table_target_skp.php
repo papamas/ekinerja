@@ -20,7 +20,8 @@
 </ol>
 <div style="padding:10px;margin-top:-30px;">
     <div style="float:left;">
-        <button class="btn btn-primary" onclick="tambah_target_tahunan_skp('<?= $id ?>')"><i class="fa fa-plus"></i> Tambah</button>
+        <button class="btn btn-primary" onclick="tambah_target_tahunan_skp('<?= $id ?>')">
+		<i class="fa fa-plus"></i> Tambah</button>
     </div>
     <div style="float: right;">
         <table>
@@ -154,15 +155,15 @@
     }
     function cetak() {
         BootstrapDialog.show({
-            title: 'Pilih Lokasi Anda',
-            message: '<table class="table"><tr><td><select class="form-control" id="lokasi"><?= pilihan_list($spesimen, "lokasi_spesimen", "id_dd_spesimen", "") ?></select></td><td><button class="btn ui-state-default" onclick="cetak_target_tahunan_skp()">Cetak</button></td></tr></table>'
+            title: 'Cetak Target',
+            message: '<table class="table"><tr><td>Tahun SKP : </td><td><select class="form-control" id="lokasi"><?= pilihan_list($spesimen, "tahun", "tahun", "") ?></select></td>			<td><button class="btn ui-state-default" onclick="cetak_target_tahunan_skp()">Cetak</button></td></tr></table>'
         });
     }
     function cetak_target_tahunan_skp() {
         var id = <?= $id ?>;
         var lokasi = $('#lokasi').val();
         var dialog = new BootstrapDialog({
-            title: '<div style="font-size:12px;">Laporan Data Target Tahunan SKP</div>',
+            title: '<div style="font-size:12px;">Ceta Target Tahunan SKP</div>',
             message: function () {
 //                var $message = $('<div></div>').load('c_pdf/cetak_jfk/' + jenis );
                 var $message = $('<iframe src=c_pdf/cetak_target_tahunan_skp/' + id + '/' + lokasi + ' style="width:100%;height:300px;"></iframe>');

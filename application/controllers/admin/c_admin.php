@@ -46,7 +46,18 @@ class C_admin extends CI_Controller {
     }
 
     public function tambah() {
-        $this->load->view("admin/v_tambah");
+		$this->db->from('tbljabatan');
+		$this->db->where('jenis', 'ADM');
+		$data['result'] = $this->db->get()->row_array();
+        $this->load->view("admin/v_tambah",$data);
+    }
+	
+	public function get_jabatan() {
+        $nama = $this->input->post('q');
+        $q = "SELECT kodejab as id, jabatan as label, jabatan as value FROM 
+		tbljabatan WHERE jenis='ADM'";
+        $data = $this->db->query($q)->result();
+        echo json_encode($data);
     }
 
     public function ubah($id) {
@@ -59,7 +70,7 @@ FROM dd_user a WHERE a.id_dd_user={$id}")->result_array();
         $this->load->model("M_database");
         $p = json_decode(file_get_contents('php://input'));
         $p->password = base64_encode($p->password);
-        $p->jabatan = 701089;
+        //$p->jabatan = 701089;
         $p->nama = $p->username;
         $p->nip = 9999;
         $cek = $this->M_database->tambah_data('dd_user', $p);

@@ -17,7 +17,8 @@ class M_admin extends CI_Model {
 
     private function _get_datatables_query() {
         $this->db->from($this->table);
-        $this->db->where('jabatan', '701089');
+		$this->db->join('tbljabatan b', 'b.kodejab=a.jabatan', 'LEFT');
+        $this->db->where('b.jenis', 'ADM');
         $i = 0;
 
         foreach ($this->column_search as $item) { // loop column 

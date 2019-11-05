@@ -87,7 +87,7 @@
                         <img src="_images/BKN Logo.png" style="width: 200px;"/>
                     </div>
                     <div id="logo_kanan" style="margin-top:10px;">
-                        <a href="_files/petunjuk.doc"><img src="_images/icon-lg-guides-blue.png" style="width:70px;"></a>
+                        <a href="_files/petunjuk.pdf"><img src="_images/icon-lg-guides-blue.png" style="width:70px;"></a>
                         <a href="_files/faq.doc"><img src="_images/faq2.png" style="width:70px;"></a>
                     </div>
                     <!--<div style="clear:both"></div>-->
@@ -161,7 +161,7 @@
                             <?= isset($pt['jabatan']) ? $pt['jabatan'] : 'Belum Ada' ?>
                         </div>
                         <div style="bottom:10px;font-size:10px;text-align: center;position:absolute;width: 100%;">
-                            Penilaian dilakukan oleh Tim Kinerja BKN Pusat dengan mempertimbangkan berbagai aspek
+                            Penilaian dilakukan oleh Tim Kinerja BKPP Kab. Gorontalo dengan mempertimbangkan berbagai aspek
                         </div>
                     </div>
                 </div>

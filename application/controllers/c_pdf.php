@@ -7,7 +7,151 @@ class C_pdf extends CI_Controller {
     }
 
     public function cetak_target_tahunan_skp($id, $lokasi) {
-        $id_user = $this->session->userdata('id_user');
+        
+		$id_user = $this->session->userdata('id_user');   
+        $filename = 'Target SKP.pdf';
+		
+		$this->load->library('PDFTC', array());
+		$this->pdftc->setTitle_Header('Target SKP');
+		$this->pdftc->setTitle('Target SKP');
+		$this->pdftc->setPrintHeader(false);
+		$this->pdftc->setPrintFooter(false);
+		$this->pdftc->setHeaderFont(array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+		$this->pdftc->setFooterFont(array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+		$this->pdftc->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+		$this->pdftc->SetMargins(10, 35, PDF_MARGIN_RIGHT);
+		$this->pdftc->SetHeaderMargin(PDF_MARGIN_HEADER);
+		$this->pdftc->SetFooterMargin(PDF_MARGIN_FOOTER);
+		$this->pdftc->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
+		
+		
+		$qprestasi		= $this->_getPrestasi($id_user,$id,$lokasi);
+		
+		//var_dump($qprestasi->result_array());exit;
+		$prestasi		= $qprestasi->row();
+		
+		
+		$kegiatan		= $this->_getTargetTahunan($id_user,$id);			
+		
+		$tbl ='<table cellspacing="0" cellpadding="1" border="1">
+		<tr style="font-weight:bold;">
+			<td width="30" align="center">NO</td>
+			<td colspan="3" width="365">I. PEJABAT PENILAI</td>
+			<td width="40" align="center">NO</td>
+			<td colspan="3" width="365">II. PEGAWAI NEGERI SIPIL YANG DINILAI</td>
+		</tr>
+		<tr>
+			<td width="30" align="center">1.</td>
+			<td width="125">Nama</td><td width="240">: '.$prestasi->nama_atasan_langsung.'</td>
+			<td width="40" align="center">1.</td>
+			<td width="125">Nama</td><td width="240">: '.$prestasi->nama.' </td>
+		</tr>
+		<tr>
+			<td width="30" align="center">2.</td>
+			<td width="125">NIP</td><td width="240">: '.$prestasi->nip_atasan_langsung.'</td>
+			<td width="40" align="center">2.</td>
+			<td width="125">NIP</td><td width="240">: '.$prestasi->nip.'</td>
+		</tr>
+		
+		<tr>
+			<td width="30" align="center">3.</td>
+			<td width="125">pangkat/Gol.Ruang</td><td width="240">: '.$prestasi->golongan_ruang_atasan_langsung.', '.$prestasi->pangkat_atasan_langsung.'</td>
+			<td width="40" align="center">3.</td>
+			<td width="125">pangkat/Gol.Ruang</td><td width="240">: '.$prestasi->golongan_ruang.', '.$prestasi->pangkat.'</td>
+		</tr>
+		
+		<tr>
+			<td width="30" align="center">4.</td>
+			<td width="125">Jabatan</td><td width="240">: '.$prestasi->jabatan_atasan_langsung.'</td>
+			<td width="40" align="center">4.</td>
+			<td width="125">Jabatan</td><td width="240">: '.$prestasi->jabatan.'</td>
+		</tr>
+		
+		<tr>
+			<td width="30" align="center">5.</td>
+			<td width="125">Unit Kerja</td><td width="240">: '.$prestasi->unitkerja_atasan_langsung.'</td>
+			<td width="40" align="center">5.</td>
+			<td width="125">Unit Kerja</td><td width="240">: '.$prestasi->unitkerja.'</td>
+		</tr>
+		
+		<tr style="font-weight:bold;" >
+			<td width="30" rowspan="2" align="center">NO</td>
+			<td width="365" rowspan="2" align="center">III. KEGIATAN TUGAS JABATAN</td>
+			<td width="40" rowspan="2" align="center">AK</td>
+			<td width="365" align="center">TARGET</td>
+		</tr>
+		<tr style="font-weight:bold;">
+			<td width="100" align="center">KUANT/OUTPUT</td>
+			<td width="70" align="center">MUTU</td>
+			<td width="100" align="center">WAKTU</td>
+			<td width="95" align="center">BIAYA</td>
+		</tr>
+		<tr bgcolor="#d0e1e1">
+			<td width="30"  align="center">1</td>
+			<td width="365" align="center">2</td>
+			<td width="40" align="center">3</td>
+			<td width="100" align="center">4</td>
+			<td width="70" align="center">5</td>
+			<td width="100" align="center">6</td>
+			<td width="95" align="center">7</td>							
+		</tr>';
+		$no = 1;
+		foreach($kegiatan->result() as $val){
+			
+			$tbl .='<tr>
+				<td width="30"  align="center">'.$no.'.</td>';
+			
+			if(!is_null($val->angka_kredit)){	
+				$tbl .='<td width="365" align="left"> '.$val->kegiatan_tahunan.
+				'('.$val->angka_kredit.'/'.$val->satuan_kuantitas.')</td>
+				<td width="40" align="center"> '.($val->angka_kredit*$val->target_kuantitas).'</td>';
+			}else{
+				$tbl .='<td width="365" align="left"> '.$val->kegiatan_tahunan.'</td>
+				<td width="40" align="center">-</td>';
+			
+			}	
+			$tbl .='<td width="100" align="center">'.$val->target_kuantitas.' '.$val->satuan_kuantitas.'</td>
+				<td width="70" align="center">100</td>
+				<td width="100" align="center">'.$val->target_waktu.' bulan</td>
+				<td width="95" align="center">'.$val->target_biaya.'</td>
+			</tr>';
+			$no++;
+		}		
+			$tbl .='</table>';
+	   
+		$this->pdftc->AddPage('L', 'A4');
+		$this->pdftc->SetFont('courier', 'B', 14);
+		$this->pdftc->Setxy(0,12);
+		$this->pdftc->Write(0, '   FORMULIR SASARAN KERJA', '', 0, 'C', true, 0, false, false, 0);
+		$this->pdftc->Write(0, 'PEGAWAI NEGERI SIPIL', '', 0, 'C', true, 0, false, false, 0);		
+		$this->pdftc->SetFont('freesans', '', 10);		
+
+		
+		$this->pdftc->SetXY(50, 160);
+		$this->pdftc->Cell(30, 0, 'Pejabat Penilai,', 0,0, 'C', 0, '', 0, false, 'B', 'B');
+		$this->pdftc->SetXY(50, 177);
+		$this->pdftc->Cell(30, 0, $prestasi->nama_atasan_langsung, 0,0, 'C', 0, '', 0, false, 'B', 'B');
+		
+		$this->pdftc->SetXY(50, 180);
+		$this->pdftc->Cell(30, 0, 'NIP.'.$prestasi->nip_atasan_langsung, 0,0, 'C', 0, '', 0, false, 'B', 'B');
+					
+		$this->pdftc->SetXY(235, 155);
+		$this->pdftc->Cell(30, 0, $prestasi->lokasi_spesimen.', '.$prestasi->format_awal_periode_skp, 0,0, 'C', 0, '', 0, false, 'B', 'B');
+		
+		$this->pdftc->SetXY(235, 160);
+		$this->pdftc->Cell(30, 0, 'Pegawai Negeri Sipil Yang Dinilai,', 0,0, 'C', 0, '', 0, false, 'B', 'B');
+		
+		$this->pdftc->SetXY(235, 177);
+		$this->pdftc->Cell(30, 0,$prestasi->nama, 0,0, 'C', 0, '', 0, false, 'B', 'B');
+		
+		$this->pdftc->SetXY(235, 180);
+		$this->pdftc->Cell(30, 0, 'NIP.'.$prestasi->nip, 0,0, 'C', 0, '', 0, false, 'B', 'B');				
+		$this->pdftc->SetY(25);		
+		$this->pdftc->writeHTML($tbl, true, false, false, false, '');	
+		$this->pdftc->Output($filename, 'I');
+			
+		/*
+		$id_user = $this->session->userdata('id_user');
         $cek = $this->db->query("SELECT * FROM dd_user WHERE id_dd_user={$id_user}")->row_array();
         if ($cek['atasan_langsung'] == "") {
             echo "User belum memiliki Atasan";
@@ -24,7 +168,131 @@ class C_pdf extends CI_Controller {
                 echo 'failed';
             }
         }
+		*/
     }
+	
+	function _getPrestasi($id_user, $id,$tahun){
+	    $sql="SELECT 
+    c.nip,
+    c.id_dd_user,
+    c.nama,
+    SF_FORMATTANGGAL(a.awal_periode_skp) format_awal_periode_skp,
+    o.lokasi_spesimen,
+    m.golongan_ruang,
+    m.pangkat,
+    n.jabatan,
+    c.atasan_langsung,
+    c.atasan_2,
+    c.atasan_3,
+    d.nip nip_atasan_langsung,
+    d.nama nama_atasan_langsung,
+    e.jabatan jabatan_atasan_langsung,
+    f.golongan_ruang golongan_ruang_atasan_langsung,
+    f.pangkat pangkat_atasan_langsung,
+    g.nip nip_atasan_2,
+    g.nama nama_atasan_2,
+    h.jabatan jabatan_atasan_2,
+    i.golongan_ruang golongan_ruang_atasan_2,
+    i.pangkat pangkat_atasan_2,
+    CASE
+        WHEN j.jenis = 'JFT' THEN 2
+        WHEN j.jenis = 'JST' THEN 1
+        WHEN j.jenis = 'JFU' THEN 4
+        ELSE 3
+    END jenis_jabatan,
+    k.unitkerja unitkerja_atasan_langsung,
+    l.unitkerja unitkerja_atasan_2, p.unitkerja 
+FROM
+    opmt_tahunan_skp  a
+        LEFT JOIN
+    dd_user c ON a.id_dd_user = c.id_dd_user
+        LEFT JOIN
+    dd_ruang_pangkat m ON c.gol_ruang = m.id_dd_ruang_pangkat
+        LEFT JOIN
+    tbljabatan n ON c.jabatan = n.kodejab
+        LEFT JOIN
+    dd_user d ON c.atasan_langsung = d.id_dd_user
+        LEFT JOIN
+    tbljabatan e ON d.jabatan = e.kodejab
+        LEFT JOIN
+    dd_ruang_pangkat f ON d.gol_ruang = f.id_dd_ruang_pangkat
+        LEFT JOIN
+    dd_user g ON c.atasan_2 = g.id_dd_user
+        LEFT JOIN
+    tbljabatan h ON g.jabatan = h.kodejab
+        LEFT JOIN
+    dd_ruang_pangkat i ON g.gol_ruang = i.id_dd_ruang_pangkat
+        LEFT JOIN
+    tbljabatan j ON c.jabatan = j.kodejab
+        LEFT JOIN
+    tblstruktural k ON d.unit_kerja = k.kodeunit
+        LEFT JOIN
+    tblstruktural l ON g.unit_kerja = l.kodeunit
+        LEFT JOIN
+    dd_spesimen o ON c.lok_ker = o.id_dd_spesimen
+	LEFT JOIN tblstruktural p ON c.unit_kerja = p.kodeunit
+       WHERE
+    year(a.akhir_periode_skp) = '$tahun'
+         AND a.id_dd_user = '$id_user'
+         AND a.id_opmt_tahunan_skp = '$id'";
+		 
+		$query		= $this->db->query($sql);
+		
+		return $query;
+		
+	}
+	
+	function _getTargetTahunan($id_user,$id_tahun)
+	{
+	    $sql	="SELECT c.*, 
+ROUND(c.nilai_kuantitas + c.nilai_kualitas + c.nilai_waktu,2) perhitungan,
+CASE
+	WHEN c.target_biaya > 0 THEN ROUND((c.nilai_kuantitas + c.nilai_kualitas + c.nilai_waktu )/4,3)
+    ELSE ROUND((c.nilai_kuantitas + c.nilai_kualitas + c.nilai_waktu )/3,3)
+END
+nilai
+FROM (SELECT b.*,
+CASE
+    WHEN b.persen_waktu <=24 THEN ((1.76 * b.target_Waktu - b.realisasi_waktu ) / b.target_waktu) * 100
+    ELSE 76 - ((((1.76 * b.target_waktu - b.realisasi_waktu) / b.target_waktu ) * 100 ) - 100 )
+END
+nilai_waktu,
+CASE
+	WHEN b.persen_biaya <= 24 THEN  ((1.76 * b.target_biaya - b.realisasi_biaya) / b.target_biaya) * 100
+    ELSE 76 - ((((1.76 * b.target_biaya - b.realisasi_biaya) / b.target_biaya ) * 100 ) - 100 )
+END
+nilai_biaya
+FROM ( SELECT a.*,
+(realisasi_kuantitas/target_kuantitas) * 100 nilai_kuantitas,
+(realisasi_kualitas/100) * 100 nilai_kualitas,
+100 - ( (realisasi_waktu/target_waktu) * 100) persen_waktu,
+100 - ( (realisasi_biaya/target_biaya) * 100) persen_biaya
+FROM 
+(SELECT a.id_opmt_target_skp, a.id_opmt_detail_kegiatan_jabatan, f.angka_kredit, a.kegiatan_tahunan,a.target_kuantitas,
+b.satuan_kuantitas,a.target_waktu,a.biaya target_biaya,
+CASE 
+	WHEN ISNULL(sum(c.kuantitas)) THEN 0
+    ELSE sum(c.kuantitas)
+END
+realisasi_kuantitas,
+CASE 
+	WHEN ISNULL(d.kualitas) THEN 0
+    ELSE d.kualitas
+END
+realisasi_kualitas,d.waktu realisasi_waktu,d.biaya realisasi_biaya, a.id_dd_user, 
+e.id_opmt_tahunan_skp, e.awal_periode_skp, e.akhir_periode_skp
+FROM  opmt_target_skp a
+LEFT JOIN  dd_kuantitas b on a.satuan_kuantitas = b.id_dd_kuantitas
+LEFT JOIN  opmt_realisasi_harian_skp c ON a.id_opmt_target_skp = c.id_opmt_target_skp AND c.proses=0
+LEFT JOIN  opmt_realisasi_skp d ON a.id_opmt_target_skp = d.id_opmt_target_skp
+LEFT JOIN  opmt_tahunan_skp e ON e.id_opmt_tahunan_skp = a.id_opmt_tahunan_skp
+LEFT JOIN  opmt_detail_kegiatan_jabatan f ON a.id_opmt_detail_kegiatan_jabatan = f.id_opmt_detail_kegiatan_jabatan
+WHERE a.id_dd_user='$id_user'
+GROUP BY a.id_opmt_target_skp
+ ) a) b ) c WHERE c.id_opmt_tahunan_skp ='$id_tahun' ";
+		$query	=$this->db->query($sql);
+		return $query;
+	}
 
     public function pdf_cetak_target_skp_tahunan($id, $lokasi) {
         $id_user = $this->session->userdata('id_user');
@@ -278,6 +546,7 @@ WHERE a.tahun={$thn} AND a.bulan={$bln} {$par_sql}";
 				<td width="50" align="center" ></td>
 			</tr>';
 			
+			//var_dump($row_kegiatan->awal_periode_skp);exit;
 			
 			
 			$tugas_tambahan = $this->_getTugasTambahan($id_user,$row_kegiatan->awal_periode_skp,$row_kegiatan->akhir_periode_skp);
@@ -418,6 +687,7 @@ WHERE a.tahun={$thn} AND a.bulan={$bln} {$par_sql}";
 		return $query;
 		
 	}
+	
 	function _getKegiatanTahunan($id_user,$id_tahun)
 	{
 	    $sql	="SELECT c.*, 
@@ -444,7 +714,8 @@ FROM ( SELECT a.*,
 100 - ( (realisasi_waktu/target_waktu) * 100) persen_waktu,
 100 - ( (realisasi_biaya/target_biaya) * 100) persen_biaya
 FROM 
-(SELECT a.id_opmt_target_skp, a.id_opmt_detail_kegiatan_jabatan, f.angka_kredit, a.kegiatan_tahunan,a.target_kuantitas,
+(SELECT a.id_opmt_target_skp, a.id_opmt_detail_kegiatan_jabatan, 
+f.angka_kredit, a.kegiatan_tahunan,a.target_kuantitas,
 b.satuan_kuantitas,a.target_waktu,a.biaya target_biaya,
 CASE 
 	WHEN ISNULL(sum(c.kuantitas)) THEN 0
@@ -457,13 +728,14 @@ CASE
 END
 realisasi_kualitas,d.waktu realisasi_waktu,d.biaya realisasi_biaya, a.id_dd_user, 
 e.id_opmt_tahunan_skp, e.awal_periode_skp, e.akhir_periode_skp,
-sf_formatTanggal(e.awal_periode_skp) format_awal_periode_skp,sf_formatTanggal(e.akhir_periode_skp) format_akhir_periode_skp
-FROM ekinerja.opmt_target_skp a
-LEFT JOIN ekinerja.dd_kuantitas b on a.satuan_kuantitas = b.id_dd_kuantitas
-LEFT JOIN ekinerja.opmt_realisasi_harian_skp c ON a.id_opmt_target_skp = c.id_opmt_target_skp AND c.proses=0
-LEFT JOIN ekinerja.opmt_realisasi_skp d ON a.id_opmt_target_skp = d.id_opmt_target_skp
-LEFT JOIN ekinerja.opmt_tahunan_skp e ON e.id_opmt_tahunan_skp = a.id_opmt_tahunan_skp
-LEFT JOIN ekinerja.opmt_detail_kegiatan_jabatan f ON a.id_opmt_detail_kegiatan_jabatan = f.id_opmt_detail_kegiatan_jabatan
+sf_formatTanggal(e.awal_periode_skp) format_awal_periode_skp,
+sf_formatTanggal(e.akhir_periode_skp) format_akhir_periode_skp
+FROM opmt_target_skp a
+LEFT JOIN dd_kuantitas b on a.satuan_kuantitas = b.id_dd_kuantitas
+LEFT JOIN opmt_realisasi_harian_skp c ON a.id_opmt_target_skp = c.id_opmt_target_skp AND c.proses=0
+LEFT JOIN opmt_realisasi_skp d ON a.id_opmt_target_skp = d.id_opmt_target_skp
+LEFT JOIN opmt_tahunan_skp e ON e.id_opmt_tahunan_skp = a.id_opmt_tahunan_skp
+LEFT JOIN opmt_detail_kegiatan_jabatan f ON a.id_opmt_detail_kegiatan_jabatan = f.id_opmt_detail_kegiatan_jabatan
 WHERE a.id_dd_user='$id_user'
 GROUP BY a.id_opmt_target_skp
  ) a) b ) c WHERE c.id_opmt_tahunan_skp ='$id_tahun' ";
@@ -474,7 +746,7 @@ GROUP BY a.id_opmt_target_skp
 	
 	function _getTugasTambahan($id,$start,$end)
 	{
-		$sql="SELECT a.* FROM ekinerja.opmt_tugas_tambahan  a
+		$sql="SELECT a.* FROM opmt_tugas_tambahan  a
 WHERE a.id_dd_user='$id' AND date(a.tanggal) between '$start' AND '$end' ";
         $query	=$this->db->query($sql);
 		return $query;
@@ -482,7 +754,7 @@ WHERE a.id_dd_user='$id' AND date(a.tanggal) between '$start' AND '$end' ";
 	
 	function _getKreatifitas($id,$start,$end)
 	{
-		$sql="SELECT a.*, b.* FROM ekinerja.opmt_kreatifitas_skp a
+		$sql="SELECT a.*, b.* FROM opmt_kreatifitas_skp a
 LEFT JOIN opmt_kreatifitas_atasan b ON a.id_dd_user = b.id_dd_user
 WHERE a.id_dd_user='$id' AND date(a.tanggal) between '$start' AND '$end' ";
         $query	=$this->db->query($sql);

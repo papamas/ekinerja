@@ -39,7 +39,7 @@
             if (response.status === 1) {
                 alert(response.ket);
                 $('.close').click();
-                menu('admin/c_user');
+                menu('admin/c_admin');
             } else {
                 alert(response.ket);
             }

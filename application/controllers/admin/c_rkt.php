@@ -122,8 +122,9 @@ class C_rkt extends CI_Controller {
     }
 
     public function tambah() {
-        $data['unit'] = $this->db->where('substring(kodeunit,4,2)', '00')->get('tblstruktural')->result_array();
-        $this->load->view("rkt/v_tambah", $data);
+        //$data['unit'] = $this->db->where('substring(kodeunit,4,2)', '00')->get('tblstruktural')->result_array();
+        $data['unit'] = $this->db->get('tblstruktural')->result_array();
+		$this->load->view("rkt/v_tambah", $data);
     }
 
     public function tambah_sasaran($id) {

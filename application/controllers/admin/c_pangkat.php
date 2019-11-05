@@ -22,17 +22,17 @@ class C_pangkat extends CI_Controller {
         $no = $_POST['start'];
         foreach ($list as $dt) {
             $no++;
-            $link_edit = '<a href="javascript:void(0)" onclick="ubah_pangkat(' . $dt->KodeGol . ')">
+            $link_edit = '<a href="javascript:void(0)" onclick="ubah_pangkat(' . $dt->id_dd_ruang_pangkat . ')">
 <i class="fa fa-pencil text-success"/>
 </a>';
 
-            $link_hapus = '<a href="javascript:void(0)" onclick="hapus_pangkat(' . $dt->KodeGol . ')">
+            $link_hapus = '<a href="javascript:void(0)" onclick="hapus_pangkat(' . $dt->id_dd_ruang_pangkat . ')">
 <i class="fa fa-trash text-danger"/>
 </a>';
             $row = array();
             $row[] = $no;
-            $row[] = $dt->Golongan;
-            $row[] = $dt->Pangkat;
+            $row[] = $dt->golongan_ruang;
+            $row[] = $dt->pangkat;
             $row[] = $link_edit;
             $row[] = $link_hapus;
             $data[] = $row;
@@ -53,14 +53,14 @@ class C_pangkat extends CI_Controller {
     }
 
     public function ubah($id) {
-        $x['dt_pangkat'] = $this->db->query("SELECT * FROM tblgolongan WHERE KodeGol={$id}")->result_array();
+        $x['dt_pangkat'] = $this->db->query("SELECT * FROM dd_ruang_pangkat WHERE id_dd_ruang_pangkat={$id}")->result_array();
         $this->load->view("pangkat/v_ubah", $x);
     }
 
     public function aksi_tambah() {
         $this->load->model("M_database");
         $p = json_decode(file_get_contents('php://input'));
-        $cek = $this->M_database->tambah_data('tblgolongan', $p);
+        $cek = $this->M_database->tambah_data('dd_ruang_pangkat', $p);
         if ($cek) {
             $a['status'] = 1;
             $a['ket'] = 'Golongan / Pangkat berhasil ditambah';
@@ -75,7 +75,8 @@ class C_pangkat extends CI_Controller {
     public function aksi_ubah() {
         $this->load->model("M_database");
         $p = json_decode(file_get_contents('php://input'));
-        $cek = $this->M_database->ubah_data('tblgolongan', 'KodeGol', $p->KodeGol, $p);
+		$cek = $this->M_database->ubah_data('dd_ruang_pangkat', 
+		'id_dd_ruang_pangkat', $p->id_dd_ruang_pangkat, $p);
         if ($cek) {
             $a['status'] = 1;
             $a['ket'] = 'Golongan / Pangkat berhasil diubah';
@@ -90,7 +91,7 @@ class C_pangkat extends CI_Controller {
     public function hapus_pangkat() {
         $this->load->model("M_database");
         $id = $this->input->post('id');
-        $hapus = $this->M_database->hapus_data('tblgolongan', 'KodeGol', $id);
+        $hapus = $this->M_database->hapus_data('dd_ruang_pangkat', 'KodeGol', $id);
         if ($hapus) {
             $a ['status'] = 1;
             $a['ket'] = "Data Berhasil Dihapus";

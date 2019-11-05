@@ -191,7 +191,7 @@
                 }
             });
         },
-        minLength: 0,
+        minLength: 5,
         select: function (event, ui) {
             $('#jabatan').val(ui.item.id);
         }, open: function () {

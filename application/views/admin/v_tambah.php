@@ -13,7 +13,13 @@
             <td>Password</td>
             <td><input type="password" class="form-control " name="password"></td>
         </tr>
-
+		<tr>
+            <td>Jabatan</td>
+            <td>
+                <input type="text" class="form-control" value="<?=$result['jabatan']?>" id="jabatan" >
+				<input type="hidden" name="jabatan" id="jabatan_id" value="<?=$result['kodejab']?>">
+			</td>
+        </tr>
 
         <tr>
             <td></td>
@@ -44,5 +50,7 @@
         });
 
     });
+	
+	
 
 </script>

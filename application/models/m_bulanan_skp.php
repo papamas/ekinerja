@@ -18,6 +18,7 @@ class M_bulanan_skp extends CI_Model {
         $id_user = $this->session->userdata('id_user');
         $this->db->from($this->table);
         $this->db->where("a.id_dd_user", $id_user);
+		$this->db->order_by("a.bulan", "ASC");
         if (!empty($status)) {
             $this->db->where('tahun', $status);
         }

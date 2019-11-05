@@ -137,6 +137,8 @@ if (isset($harian_skp)) {
     });
     }
     });
+	
+		
     $('.tanggal').datepicker({
     dateFormat: 'yy-mm-dd',
             autoclose: true,
@@ -185,6 +187,7 @@ if (isset($harian_skp)) {
     $(this).prop('checked', true);
     }
     }
-
-    });
+	
+	
+});
 </script>

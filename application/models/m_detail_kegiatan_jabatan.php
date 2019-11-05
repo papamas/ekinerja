@@ -15,10 +15,13 @@ class M_detail_kegiatan_jabatan extends CI_Model {
         $this->load->database();
     }
 
-    private function _get_datatables_query($id) {
+    private function _get_datatables_query($nama,$id) {
         $this->db->from($this->table);
         $this->db->join('dd_kuantitas b', 'a.satuan_hasil=b.id_dd_kuantitas', 'LEFT');
-        $this->db->where('id_opmt_kegiatan_jabatan', $id);
+		$this->db->where('a.id_opmt_kegiatan_jabatan',$id);
+        if (!empty($nama)) {
+            $this->db->like('a.kegiatan_jabatan', $nama);
+        }
         $i = 0;
 
         foreach ($this->column_search as $item) { // loop column 
@@ -44,24 +47,27 @@ class M_detail_kegiatan_jabatan extends CI_Model {
         }
     }
 
-    function get_datatables($id) {
-        $this->_get_datatables_query($id);
+    function get_datatables($nama, $id) {
+        $this->_get_datatables_query($nama, $id);
         if ($_POST['length'] != -1)
             $this->db->limit($_POST['length'], $_POST['start']);
         $query = $this->db->get();
         return $query->result();
     }
 
-    function count_filtered($id) {
-        $this->_get_datatables_query($id);
+    function count_filtered($nama, $id) {
+        $this->_get_datatables_query($nama, $id);
         $query = $this->db->get();
         return $query->num_rows();
     }
 
-    public function count_all($id) {
+    public function count_all($nama, $id) {
         $this->db->from($this->table);
         $this->db->join('dd_kuantitas b', 'a.satuan_hasil=b.id_dd_kuantitas', 'LEFT');
         $this->db->where('id_opmt_kegiatan_jabatan', $id);
+		if (!empty($nama)) {
+            $this->db->like('a.kegiatan_jabatan', $nama);
+        }
         return $this->db->count_all_results();
     }
 

@@ -88,8 +88,8 @@
             <tr>
                 <td>Gol. Ruang / Pangkat</td>
                 <td>
-                    <input class="gol_ruang form-control" type="text" value="<?= $dt['KodeGol'] ?>">
-                    <input type="hidden" name="gol_ruang" id="gol_ruang" value="<?= $dt['nama_golongan'] ?>">
+                    <input class="gol_ruang form-control" type="text" value="<?= $dt['nama_golongan'] ?>">
+                    <input type="hidden" name="gol_ruang" id="gol_ruang" value="<?= $dt['id_dd_ruang_pangkat'] ?>">
                 </td>
             </tr>
 
@@ -194,7 +194,7 @@
                 }
             });
         },
-        minLength: 0,
+        minLength: 5,
         select: function (event, ui) {
             $('#jabatan').val(ui.item.id);
         }, open: function () {

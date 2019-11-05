@@ -16,11 +16,14 @@ class C_tahunan_skp extends CI_Controller {
     }
 
     public function target($id) {
+		
         $data['id'] = $id;
         $id_user = $this->session->userdata('id_user');
-        $data['spesimen'] = $this->db->query('SELECT * FROM dd_spesimen')->result_array();
+        $data['spesimen'] = $this->db->query("SELECT *,YEAR(awal_periode_skp) tahun 
+		FROM opmt_tahunan_skp where id_dd_user='$id_user' GROUP BY YEAR(awal_periode_skp) ")->result_array();
         $data['dt_skp_tahunan_atasan'] = $this->db->query("select b.* from opmt_tahunan_skp a
-INNER JOIN opmt_target_skp b on a.id_opmt_tahunan_skp=b.id_opmt_tahunan_skp AND a.id_dd_user=(select atasan_langsung from dd_user where id_dd_user={$id_user})")->result_array();
+INNER JOIN opmt_target_skp b on a.id_opmt_tahunan_skp=b.id_opmt_tahunan_skp 
+AND a.id_dd_user=(select atasan_langsung from dd_user where id_dd_user={$id_user})")->result_array();
         $this->load->view('tahunan_skp/v_table_target_skp', $data);
     }
 

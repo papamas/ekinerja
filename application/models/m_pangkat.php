@@ -4,10 +4,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class M_pangkat extends CI_Model {
 
-    var $table = 'tblgolongan a';
+    var $table = 'dd_ruang_pangkat a';
     var $column_order = array(null, 'unitkerja'); //set column field database for datatable orderable
     var $column_search = array('unitkerja'); //set column field database for datatable searchable 
-    var $order = array('KodeGol' => 'asc'); // default order 
+    var $order = array('id_dd_ruang_pangkat' => 'asc'); // default order 
 
     public function __construct() {
         parent::__construct();
@@ -17,10 +17,10 @@ class M_pangkat extends CI_Model {
 
     private function _get_datatables_query($gol,$pangkat) {
         if ($gol !== "") {
-            $this->db->like("Golongan", $gol);
+            $this->db->like("golongan_ruang", $gol);
         }
         if ($pangkat !== "") {
-            $this->db->like("Pangkat", $pangkat);
+            $this->db->like("pangkat", $pangkat);
         }
         $this->db->from($this->table);
         $i = 0;
@@ -41,7 +41,8 @@ class M_pangkat extends CI_Model {
         }
 
         if (isset($_POST['order'])) { // here order processing
-            $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+            $this->db->order_by($this->column_order[$_POST['order']['0']['column']],
+			$_POST['order']['0']['dir']);
         } else if (isset($this->order)) {
             $order = $this->order;
             $this->db->order_by(key($order), $order[key($order)]);
@@ -64,10 +65,10 @@ class M_pangkat extends CI_Model {
 
     public function count_all($gol,$pangkat) {
        if ($gol !== "") {
-            $this->db->like("Golongan", $gol);
+            $this->db->like("golongan_ruang", $gol);
         }
         if ($pangkat !== "") {
-            $this->db->like("Pangkat", $pangkat);
+            $this->db->like("pangkat", $pangkat);
         }
         $this->db->from($this->table);
          return $this->db->count_all_results();

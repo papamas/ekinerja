@@ -26,12 +26,13 @@ class C_user extends CI_Controller {
         $id_user = $this->session->userdata('id_user');
         $this->db->join('tbljabatan b', 'b.kodejab=a.jabatan', 'LEFT');
         $this->db->join('tblstruktural c', 'c.kodeunit=a.unit_kerja', 'LEFT');
-        $this->db->join('tblgolongan d', 'd.KodeGol=a.gol_ruang', 'LEFT');
+        $this->db->join('dd_ruang_pangkat d', 'd.id_dd_ruang_pangkat=a.gol_ruang', 'LEFT');
         $this->db->join('dd_user e', 'e.id_dd_user=a.atasan_langsung', 'LEFT');
         $this->db->join('dd_user f', 'f.id_dd_user=a.atasan_2', 'LEFT');
         $this->db->join('dd_user g', 'g.id_dd_user=a.atasan_3', 'LEFT');
 		 $this->db->join('dd_spesimen h', 'a.lok_ker=h.id_dd_spesimen', 'LEFT');
-        $this->db->select('a.*,b.jabatan nama_jabatan,c.unitkerja nama_uker,d.*,e.nama nama_1,f.nama nama_2,g.nama nama_3, h.lokasi_spesimen lokasi');
+        $this->db->select('a.*,b.jabatan nama_jabatan,c.kodeunit uker, c.unitkerja nama_uker,d.*,
+		e.nama nama_1,f.nama nama_2,g.nama nama_3, h.lokasi_spesimen lokasi');
         $x['user'] = $this->db->where('a.id_dd_user', $id_user)->from('dd_user a')->get()->row_array();
         $x['list_user'] = $this->db->from('dd_user')->where('id_dd_user !=', $id_user)->get()->result_array();
         $this->load->view('user/v_profile', $x);
@@ -49,6 +50,34 @@ class C_user extends CI_Controller {
         $nip = $this->session->userdata('nip');
         $nama = $this->input->post('q');
         $q = "SELECT id_dd_user as id, concat(nip, '-', nama) as label, rtrim(nama) as value FROM dd_user WHERE (nama LIKE '%" . $nama . "%' OR nip LIKE '%" . $nama . "%' ) AND NIP NOT IN('{$nip}')  ORDER BY value ASC";
+        $data = $this->db->query($q)->result();
+        echo json_encode($data);
+    }
+	
+	public function get_uker() {
+        $nip = $this->session->userdata('nip');
+        $nama = $this->input->post('q');
+        $q = "SELECT kodeunit as id, unitkerja as label, unitkerja as value FROM 
+		tblstruktural WHERE unitkerja LIKE '%" . $nama . "%'";
+        $data = $this->db->query($q)->result();
+        echo json_encode($data);
+    }
+	
+	public function get_jabatan() {
+        $nip = $this->session->userdata('nip');
+        $nama = $this->input->post('q');
+        $q = "SELECT kodejab as id, jabatan as label, jabatan as value FROM 
+		tbljabatan WHERE jabatan LIKE  '".$nama."%'";
+        $data = $this->db->query($q)->result();
+        echo json_encode($data);
+    }
+	
+	public function get_pangkat() {
+        $nip = $this->session->userdata('nip');
+        $nama = $this->input->post('q');
+        $q = "SELECT id_dd_ruang_pangkat as id, concat(pangkat,' / ',golongan_ruang) as label,
+		concat(pangkat,' / ',golongan_ruang) as value FROM 
+		dd_ruang_pangkat WHERE pangkat LIKE  '".$nama."%' OR golongan_ruang LIKE '".$nama."%' ";
         $data = $this->db->query($q)->result();
         echo json_encode($data);
     }
@@ -371,9 +400,15 @@ INNER JOIN opmt_target_skp b on a.id_opmt_tahunan_skp=b.id_opmt_tahunan_skp AND 
         $data['dt_kuantitas'] = $this->db->get('dd_kuantitas')->result_array();
         $periode = $this->db->query("SELECT * FROM opmt_tahunan_skp WHERE id_opmt_tahunan_skp='" . $id . "'")->row_array();
         $data['periode'] = $periode;
-        $data_user = $this->db->query("select a.*,b.kodeunit,b.unitkerja from dd_user a INNER JOIN tblstruktural b ON b.kodeunit= concat(left(a.unit_kerja,3),'00')
+        /*
+		$data_user = $this->db->query("select a.*,b.kodeunit,b.unitkerja from dd_user 
+		a INNER JOIN tblstruktural b ON b.kodeunit= concat(left(a.unit_kerja,3),'00')
 WHERE a.id_dd_user={$id_user}")->row_array();
-        $data['rencana'] = $this->db->query("select * from opmt_rkt a
+        */
+		$data_user = $this->db->query("select a.*,b.kodeunit,b.unitkerja from dd_user 
+		a INNER JOIN tblstruktural b ON b.kodeunit=a.unit_kerja 
+		WHERE a.id_dd_user={$id_user}")->row_array();
+		$data['rencana'] = $this->db->query("select * from opmt_rkt a
 LEFT JOIN opmt_sasaran_strategis b on a.id_opmt_rkt=b.id_opmt_rkt
 where kodeunit='{$data_user['kodeunit']}'")->result_array();
         $data['direktorat'] = $data_user['unitkerja'];
@@ -467,6 +502,7 @@ WHERE a.id_dd_user={$id_user}")->result_array();
 
     public function aksi_harian_skp() {
         $p = json_decode(file_get_contents('php://input'));
+		
         if (isset($p->proses)) {
             $p->proses = 1;
         } else {

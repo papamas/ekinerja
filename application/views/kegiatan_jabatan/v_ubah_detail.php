@@ -5,8 +5,7 @@
 </style>
 <form id="frmSpesimen" method="post">
     <table class="table">
-        <?php foreach ($dt_kegiatan_jabatan as $dt) { ?>
-            <input type="hidden" name="id_opmt_detail_kegiatan_jabatan" value="<?= $dt['id_opmt_detail_kegiatan_jabatan'] ?>">
+        <   <input type="hidden" name="id_opmt_detail_kegiatan_jabatan" value="<?= $dt['id_opmt_detail_kegiatan_jabatan'] ?>">
 
             <tr>
                 <td>Butir Kegiatan Jabatan</td>
@@ -17,9 +16,16 @@
             <tr>
                 <td>Satuan Hasil</td>
                 <td>
-                    <input type="hidden" class="form-control " name="id_satuan_hasil" value="<?= $dt['satuan_hasil'] ?>" >
+                    <select class="form-control" name="satuan_hasil" id="satuan_hasil">
+					<?php foreach($satuan_hasil as $value):?>
+					<option value="<?=$value['id_dd_kuantitas']?>"><?=$value['satuan_kuantitas']?></option>
+					<?php endforeach;?>
+					</select>
+					<!--
+					<input type="hidden" class="form-control " name="id_satuan_hasil" value="<?= $dt['satuan_hasil'] ?>" >
                     <input type="text" class="form-control " name="satuan_hasil" value="<?= $dt['satuan_kuantitas'] ?>" >
-                </td>
+                    !-->
+				</td>
             </tr>
             <tr>
                 <td>Angka Kredit</td>
@@ -31,12 +37,13 @@
                 <td></td>
                 <td style="text-align: right;"><button class="btn btn-primary">Simpan</button></td>
             </tr>
-        <?php } ?>
+        
     </table>
 </form>
 
 <script>
 
+   $("#satuan_hasil").val('<?= $dt['satuan_hasil']?>');
     $("#frmSpesimen").submit(function (e) {
         e.preventDefault();
         var frmSpesimen = $("#frmSpesimen");
