@@ -52,28 +52,33 @@ class C_atasan extends CI_Controller {
         $data['parameter'] = $this->db->get('dc_parameter_bulan')->row_array();
         $periode = $this->db->query("SELECT * FROM opmt_bulanan_skp a LEFT JOIN dd_user b on a.id_dd_user=b.id_dd_user WHERE id_opmt_bulanan_skp={$id}")->row_array();
         $data['periode'] = $periode;
-	$data['par_user']=$periode['id_dd_user'];
+	    $data['par_user']= $periode['id_dd_user'];
         $data['disposisi'] = $this->db->query("SELECT * FROM opmt_disposisi WHERE month(tanggal_disposisi)={$periode['bulan']} AND id_dd_user={$periode['id_dd_user']}")->result_array();
-        $q = "SELECT * FROM(
-SELECT a.id_dd_user,a.id_dd_user_bawahan,a.id_opmt_target_bulanan_skp id,a.realisasi_waktu,a.realisasi_kualitas,a.realisasi_biaya,a.id_opmt_target_bulanan_skp,b.id_opmt_bulanan_skp,a.id_opmt_target_skp,b.tahun,d.kegiatan_tahunan kegiatan,a.turunan,a.target_kuantitas,c.satuan_kuantitas,100 AS kualitas,a.target_waktu,a.biaya,'utama' ket
+        
+		//var_dump($periode);exit;
+		$q = "SELECT a.*,b.kuantitas realisasi_kuantitas
+FROM(
+SELECT a.id_dd_user,a.id_dd_user_bawahan,a.id_opmt_target_bulanan_skp id,a.realisasi_waktu,a.realisasi_kualitas,a.realisasi_biaya,a.id_opmt_target_bulanan_skp,b.id_opmt_bulanan_skp,a.id_opmt_target_skp,b.tahun,d.kegiatan_tahunan kegiatan,a.turunan,a.target_kuantitas,c.satuan_kuantitas,100 AS kualitas,a.target_waktu,a.biaya,'utama' ket,'0' ket2
 FROM (`opmt_target_bulanan_skp` a) 
 INNER JOIN `opmt_bulanan_skp` b ON `b`.`id_opmt_bulanan_skp`=`a`.`id_opmt_bulanan_skp` AND b.bulan={$periode['bulan']} AND b.tahun={$periode['tahun']}
 LEFT JOIN `opmt_target_skp` d ON `d`.`id_opmt_target_skp`=`a`.`id_opmt_target_skp` 
 LEFT JOIN `dd_kuantitas` c ON `c`.`id_dd_kuantitas`=`a`.`satuan_kuantitas` 
 WHERE ( a.id_dd_user={$periode['id_dd_user']} OR a.id_dd_user_bawahan={$periode['id_dd_user']})
  UNION ALL
- SELECT d.id_dd_user,d.id_dd_user_bawahan,d.id_opmt_turunan_skp,d.realisasi_waktu,d.realisasi_kualitas,d.realisasi_biaya,e.id_opmt_target_bulanan_skp,f.id_opmt_bulanan_skp,e.id_opmt_target_skp,f.tahun,d.kegiatan_turunan,' ',d.target_kuantitas,g.satuan_kuantitas,d.kualitas,d.target_waktu,d.biaya,'turunan' ket
+ SELECT d.id_dd_user,d.id_dd_user_bawahan,d.id_opmt_turunan_skp,d.realisasi_waktu,d.realisasi_kualitas,d.realisasi_biaya,e.id_opmt_target_bulanan_skp,f.id_opmt_bulanan_skp,e.id_opmt_target_skp,f.tahun,d.kegiatan_turunan,' ',d.target_kuantitas,g.satuan_kuantitas,d.kualitas,d.target_waktu,d.biaya,'turunan' ket,'1' ket2
 FROM opmt_turunan_skp d
  LEFT JOIN opmt_target_bulanan_skp e on e.id_opmt_target_bulanan_skp =d.id_opmt_target_bulanan_skp
  INNER JOIN opmt_bulanan_skp f on f.id_opmt_bulanan_skp=e.id_opmt_bulanan_skp AND f.bulan={$periode['bulan']} AND f.tahun={$periode['tahun']}
  LEFT JOIN `dd_kuantitas` g ON `g`.`id_dd_kuantitas`=`d`.`satuan_kuantitas`
 WHERE ( d.id_dd_user={$periode['id_dd_user']} OR d.id_dd_user_bawahan={$periode['id_dd_user']}) 
- ) a LEFT JOIN(
-SELECT a.id_opmt_target_bulanan_skp id2,sum(kuantitas) realisasi_kuantitas
-FROM opmt_realisasi_harian_skp a
-	WHERE month(a.tanggal)={$periode['bulan']} AND year(a.tanggal)={$periode['tahun']} 	 GROUP BY a.id_opmt_target_bulanan_skp
-)b on a.id=b.id2 order by a.id_opmt_target_bulanan_skp";
+) a LEFT JOIN(
+SELECT id_opmt_target_bulanan_skp,turunan,sum(kuantitas) kuantitas
+FROM opmt_realisasi_harian_skp
+	WHERE year(tanggal)={$periode['tahun']} AND month(tanggal)={$periode['bulan']} GROUP BY id_opmt_target_bulanan_skp,turunan
+)b on a.id=b.id_opmt_target_bulanan_skp AND a.ket2=b.turunan
+ORDER BY a.id_opmt_target_bulanan_skp";
 
+        // var_dump($q);exit;
         $data['realisasi'] = $this->db->query($q)->result_array();
         $this->load->view("atasan/v_realisasi_bulanan", $data);
     }

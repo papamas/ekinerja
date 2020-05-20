@@ -320,7 +320,88 @@ WHERE id_dd_user='" . $atasan_langsung . "'")->row_array();
         $this->load->view('pdf/v_cetak_target_skp_tahunan', $x);
     }
 
-    public function cetak_target_bulanan_skp($id, $lokasi) {
+    public function cetak_target_bulanan_skp($id) {
+		
+		$sql="SELECT a.id_opmt_bulanan_skp , b.kegiatan_tahunan,
+c.kegiatan_turunan,c.target_kuantitas,c.satuan_kuantitas,c.kualitas,c.target_waktu,c.biaya,
+c.realisasi_kualitas,c.realisasi_waktu,c.realisasi_biaya,
+d.*
+FROM opmt_target_bulanan_skp a
+LEFT JOIN  opmt_target_skp b ON a.id_opmt_target_skp = b.id_opmt_target_skp
+LEFT JOIN  opmt_turunan_skp c ON c.id_opmt_target_bulanan_skp = a.id_opmt_target_bulanan_skp
+LEFT JOIN  opmt_realisasi_harian_skp d ON d.id_opmt_target_skp = b.id_opmt_target_skp 
+where a.id_opmt_bulanan_skp='27504';";
+		
+		$this->load->library('PDFTC', array());
+		
+		$this->pdftc->setTitle_Header('Nilai Capaian SKP');
+		$this->pdftc->setTitle('Nilai Capaian SKP');
+		$this->pdftc->setPrintHeader(false);
+		$this->pdftc->setPrintFooter(false);
+		$this->pdftc->setHeaderFont(array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+		$this->pdftc->setFooterFont(array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+		$this->pdftc->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+		$this->pdftc->SetMargins(10, 35, PDF_MARGIN_RIGHT);
+		$this->pdftc->SetHeaderMargin(PDF_MARGIN_HEADER);
+		$this->pdftc->SetFooterMargin(PDF_MARGIN_FOOTER);
+		$this->pdftc->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
+		$this->pdftc->AddPage('L', 'A4');
+		
+		$this->pdftc->SetMargins(5,0,5);
+		$this->pdftc->SetFont('courier', 'B', 14);
+		$this->pdftc->Setxy(0,12);
+		$this->pdftc->Write(0, 'PENILAIAN CAPAIAN SASARAN KERJA', '', 0, 'C', true, 0, false, false, 0);
+		$this->pdftc->Write(0, 'PEGAWAI NEGERI SIPIL', '', 0, 'C', true, 0, false, false, 0);
+		
+		$tbl ='		
+			<table cellspacing="0" cellpadding="1" border="1" style="border-collapse: collapse; ">    
+		<tr style="font-weight:bold;">
+			<td width="20" rowspan="2" align="center">NO</td>
+			<td width="230" rowspan="2" align="center">I. KEGIATAN TUGAS JABATAN</td>
+			<td width="30" rowspan="2" align="center">AK</td>
+			<td width="190" align="center">TARGET</td>
+			<td width="30" rowspan="2" align="center">AK</td>
+			<td width="190" align="center">REALISASI</td>
+			
+			<td width="75" align="center" rowspan="2">PENGHITUNGAN</td>
+			<td width="50" align="center" rowspan="2">NILAI<br/>CAPAIAN<br/>SKP</td>
+		</tr>
+		<tr style="font-weight:bold;">
+			<td width="70" align="center">KUANT/<br/>OUTPUT</td>
+			<td width="30" align="center">MUTU</td>
+			<td width="40" align="center">WAKTU</td>
+			<td width="50" align="center">BIAYA</td>
+			
+			<td width="70" align="center">KUANT/<br/>OUTPUT</td>
+			<td width="30" align="center">MUTU</td>
+			<td width="40" align="center">WAKTU</td>
+			<td width="50" align="center">BIAYA</td>
+		</tr>
+		
+		<tr bgcolor="#d0e1e1">
+			<td width="20"  align="center">1</td>
+			<td width="230" align="center">2</td>
+			<td width="30" align="center">3</td>
+			<td width="70" align="center">4</td>
+			<td width="30" align="center">5</td>
+			<td width="40" align="center">6</td>
+			<td width="50" align="center">7</td>
+			<td width="30" align="center">8</td>
+			
+			<td width="70" align="center">9</td>
+			<td width="30" align="center">10</td>
+			<td width="40" align="center">11</td>
+			<td width="50" align="center">12</td>
+			
+			<td width="75" align="center">13</td>
+			<td width="50" align="center">14</td>
+		</tr>';
+		
+		
+		$this->pdftc->writeHTML($tbl, true, false, true, false, '');
+		$this->pdftc->Output('REALISASI.pdf', 'I');
+		
+		/*
         $params = array('type' => 'L', 'width' => 'M', 'height' => 'M');
         $this->load->library('html2pdf_lib', $params);
         $content = file_get_contents(base_url() . 'c_pdf/pdf_cetak_target_skp_bulanan/' . $id . '/' . $lokasi);
@@ -332,6 +413,7 @@ WHERE id_dd_user='" . $atasan_langsung . "'")->row_array();
         } else {
             echo 'failed';
         }
+		*/
     }
 
     public function pdf_cetak_target_skp_bulanan($id, $lokasi) {

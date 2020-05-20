@@ -191,8 +191,9 @@
             </tr>
         </tbody>
     </table>
-
-    <!--<button class="btn btn-primary pull-right fa fa-print" onclick="cetak_target_bulanan_skp('<?= $id ?>')">Cetak</button>-->
+    <!--
+    <button class="btn btn-primary pull-right fa fa-print" onclick="cetak_target_bulanan_skp('<?= $id ?>')">Cetak</button>
+    !-->
 </div>
 <script>
 

@@ -128,7 +128,9 @@
 
         </tbody>
     </table>
+	<!--
     <button class="btn btn-primary pull-right fa fa-print" onclick="cetak()">Cetak</button>
+    !-->
 </div>
 <script>
 

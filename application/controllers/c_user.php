@@ -340,8 +340,9 @@ WHERE ( d.id_dd_user={$id_user} OR d.id_dd_user_bawahan={$id_user})
         $periode = $this->db->query("SELECT * FROM opmt_bulanan_skp WHERE id_opmt_bulanan_skp={$id}")->row_array();
         $data['periode'] = $periode;
         $data['disposisi'] = $this->db->query("SELECT * FROM opmt_disposisi WHERE month(tanggal_disposisi)={$periode['bulan']} AND id_dd_user={$id_user}")->result_array();
-	$bulan = $this->db->query("SELECT * FROM opmt_bulanan_skp WHERE id_opmt_bulanan_skp={$id}")->row_array();
-        $data['realisasi'] = $this->db->query("SELECT a.*,b.kuantitas realisasi_kuantitas
+	    $bulan = $this->db->query("SELECT * FROM opmt_bulanan_skp WHERE id_opmt_bulanan_skp={$id}")->row_array();
+        
+		$data['realisasi'] = $this->db->query("SELECT a.*,b.kuantitas realisasi_kuantitas
 FROM(
 SELECT a.id_dd_user,a.id_dd_user_bawahan,a.id_opmt_target_bulanan_skp id,a.realisasi_waktu,a.realisasi_kualitas,a.realisasi_biaya,a.id_opmt_target_bulanan_skp,b.id_opmt_bulanan_skp,a.id_opmt_target_skp,b.tahun,d.kegiatan_tahunan kegiatan,a.turunan,a.target_kuantitas,c.satuan_kuantitas,100 AS kualitas,a.target_waktu,a.biaya,'utama' ket,'0' ket2
 FROM (`opmt_target_bulanan_skp` a) 
