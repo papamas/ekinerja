@@ -12,9 +12,18 @@ class C_harian_skp extends CI_Controller {
 
     public function index() {
         $this->load->helper('url');
-        $x['tahun'] = $this->db->query("SELECT DISTINCT YEAR(tanggal) tahun FROM opmt_realisasi_harian_skp")->result_array();
-        $this->load->view('harian_skp/v_table_skp', $x);
+        //$x['tahun'] = $this->db->query("SELECT DISTINCT YEAR(tanggal) tahun FROM opmt_realisasi_harian_skp")->result_array();
+        $x['tahun']		= $this->_get_two_year_before();
+		$this->load->view('harian_skp/v_table_skp', $x);
     }
+	
+	function _get_two_year_before()
+	{
+	    $year = date("Y");
+		$yearDoubleBack = date("Y", strtotime($year . " - 1 year"));
+		$years = range($yearDoubleBack,$year);
+		return  $years;
+	}	
 
     public function bawahan() {
         $x['tahun'] = $this->db->query("SELECT distinct year(tanggal) tahun FROM opmt_realisasi_harian_skp")->result_array();

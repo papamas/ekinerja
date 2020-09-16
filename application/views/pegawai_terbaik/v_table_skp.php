@@ -61,9 +61,10 @@
     var table;
     table = $('#table').DataTable({
         "searching": false,
+		"pageLength": 250,
         "processing": true, //Feature control the processing indicator.
         "serverSide": true, //Feature control DataTables' server-side processing mode.
-        "order": [], //Initial no order.
+        "order": [[ 3, "desc" ]], //Initial no order.
 
         // Load data for the table's content from an Ajax source
         "ajax": {
@@ -82,13 +83,13 @@
                 "targets": [0], //first column / numbering column
                 "orderable": false, //set not orderable
             }, {
-                className: "dt-center",
+                className: "dt-center", "orderable": false,
                 "targets": [1]
             }, {
                 "width": "10%", className: "dt-center", "orderable": false,
                 "targets": [2]
             }, {
-                className: "dt-center", "orderable": false,
+                className: "dt-center", 
                 "targets": [3]
             }, {
                 "width": "10%", className: "dt-center", "orderable": false,

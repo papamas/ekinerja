@@ -5,7 +5,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class M_pegawai_terbaik extends CI_Model {
 
     var $table = 'opmt_bulanan_skp a';
-    var $column_order = array(null, 'tahun', 'bulan'); //set column field database for datatable orderable
+    var $column_order = array('id','nama','nip','nilai_skp'); //set column field database for datatable orderable
     var $column_search = array('tahun', 'bulan'); //set column field database for datatable searchable 
     var $order = array('a.nilai_skp' => 'desc'); // default order 
 
@@ -55,6 +55,9 @@ GROUP BY a.id_dd_user) c', 'c.id_dd_user=a.id_dd_user', 'LEFT');
         }
 
         if (isset($_POST['order'])) { // here order processing
+		    //var_dump($_POST['order']);
+		
+			
             $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
         } else if (isset($this->order)) {
             $order = $this->order;

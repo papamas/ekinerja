@@ -37,9 +37,9 @@
                 <td>
                     <select class="form-control" id="tahun">
                         <option value="all">all</option>
-                        <?php foreach ($tahun as $arr) { ?>
-                            <option value="<?= $arr['tahun'] ?>" <?= $arr['tahun'] == (int) date('Y') ? 'selected' : '' ?>><?= $arr['tahun'] ?></option>
-                        <?php } ?>
+                        <?php foreach ($tahun as $key=>$value):?>
+						<option value="<?php echo $value?>" <?php echo ($value == date('Y') ? 'selected' : '')?>><?php echo $value?></option>
+						<?php endforeach; ?>	
                     </select>
                 </td>
                 <td><button class="btn btn-primary btn-lg " onclick="refresh_harian_skp()"><i class="fa fa-search-plus"></i>Cari</button></td>

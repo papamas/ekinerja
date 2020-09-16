@@ -182,7 +182,8 @@ LEFT JOIN dd_kuantitas c ON c.id_dd_kuantitas=a.satuan_kuantitas
         $x['parameter'] = $this->db->get('dc_parameter_bulan')->row_array();
         $x['dt_kuantitas'] = $this->db->get('dd_kuantitas')->result_array();
         $x['skp_tahunan'] = $this->db->query("SELECT * FROM opmt_target_skp a 
-INNER JOIN opmt_tahunan_skp b oN a.id_opmt_tahunan_skp=b.id_opmt_tahunan_skp AND b.id_dd_user={$id_user} AND year(b.awal_periode_skp)={$tahun} ")->result_array();
+INNER JOIN opmt_tahunan_skp b oN a.id_opmt_tahunan_skp=b.id_opmt_tahunan_skp AND b.id_dd_user={$id_user} 
+AND year(b.awal_periode_skp)={$tahun} ")->result_array();
         $x['skp_bulanan'] = $this->db->query("SELECT * FROM(
 SELECT a.id_opmt_target_bulanan_skp id,a.id_opmt_target_bulanan_skp,b.id_opmt_bulanan_skp,a.id_opmt_target_skp,b.tahun,d.kegiatan_tahunan kegiatan,a.turunan,a.target_kuantitas,c.satuan_kuantitas,a.realisasi_kualitas,a.target_waktu,a.biaya,'utama' ket
 FROM (`opmt_target_bulanan_skp` a) 
@@ -213,9 +214,11 @@ WHERE a.turunan=0
 
     public function ubah_harian_skp($id) {
         $id_user = $this->session->userdata('id_user');
+		$tahun = date('Y');
         $x['dt_kuantitas'] = $this->db->get('dd_kuantitas')->result_array();
         $x['skp_tahunan'] = $this->db->query("SELECT * FROM opmt_target_skp a 
-INNER JOIN opmt_tahunan_skp b oN a.id_opmt_tahunan_skp=b.id_opmt_tahunan_skp AND b.id_dd_user={$id_user}")->result_array();
+INNER JOIN opmt_tahunan_skp b oN a.id_opmt_tahunan_skp=b.id_opmt_tahunan_skp AND b.id_dd_user={$id_user} 
+AND year(b.awal_periode_skp)={$tahun} ")->result_array();
         $x['parameter'] = $this->db->get('dc_parameter_bulan')->row_array();
 
         $x['skp_bulanan'] = $this->db->query("SELECT * FROM(
@@ -428,11 +431,14 @@ where kodeunit='{$data_user['kodeunit']}'")->result_array();
         $id_user = $this->session->userdata('id_user');
         $data_bulanan = $this->db->query("SELECT * FROM opmt_bulanan_skp WHERE id_opmt_bulanan_skp='" . $id . "'")->row_array();
         $data_tahunan = $this->db->query("SELECT * FROM opmt_tahunan_skp WHERE id_dd_user='" . $id_user . "' AND YEAR(awal_periode_skp)='" . $data_bulanan['tahun'] . "'")->result_array();
-        $data['tahun'] = $data_bulanan['tahun'];
+        foreach ($data_tahunan as $dt) {
+            $id_opmt_tahunan_skp = $dt['id_opmt_tahunan_skp'];
+        }
+		$data['tahun'] = $data_bulanan['tahun'];
         $data['bulan'] = $data_bulanan['bulan'];
         $data['dt_skp_tahunan'] = $this->db->query("SELECT b.* FROM opmt_tahunan_skp a 
 INNER JOIN opmt_target_skp b on a.id_opmt_tahunan_skp=b.id_opmt_tahunan_skp
-WHERE a.id_dd_user={$id_user}")->result_array();
+WHERE a.id_dd_user={$id_user} AND b.id_opmt_tahunan_skp={$id_opmt_tahunan_skp} ")->result_array();
         $data['dt_kuantitas'] = $this->db->get('dd_kuantitas')->result_array();
         $data['periode'] = $this->db->query("SELECT * FROM opmt_tahunan_skp WHERE id_opmt_tahunan_skp='" . $id . "'")->row_array();
         $this->load->view('user/v_tambah_target_bulanan_skp', $data);
@@ -450,7 +456,7 @@ WHERE a.id_dd_user={$id_user}")->result_array();
         $data['bulan'] = $data_bulanan['bulan'];
         $data['dt_skp_tahunan'] = $this->db->query("SELECT b.* FROM opmt_tahunan_skp a 
 INNER JOIN opmt_target_skp b on a.id_opmt_tahunan_skp=b.id_opmt_tahunan_skp
-WHERE a.id_dd_user={$id_user}")->result_array();
+WHERE a.id_dd_user={$id_user} AND b.id_opmt_tahunan_skp={$id_opmt_tahunan_skp}")->result_array();
         $data['dt_kuantitas'] = $this->db->get('dd_kuantitas')->result_array();
         $data['periode'] = $this->db->query("SELECT * FROM opmt_tahunan_skp WHERE id_opmt_tahunan_skp='" . $id . "'")->row_array();
         $data['target_bulanan_skp'] = $this->db->query("SELECT a.*,b.kegiatan_tahunan FROM opmt_target_bulanan_skp a LEFT JOIN opmt_target_skp b ON a.id_opmt_target_skp=b.id_opmt_target_skp WHERE a.id_opmt_target_bulanan_skp='" . $id . "' ")->row_array();
